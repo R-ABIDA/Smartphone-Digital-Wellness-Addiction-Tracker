@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartTracker — Digital Wellness Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="5" y="2" width="14" height="20" rx="3" stroke="url(#logo-grad)" stroke-width="2.5" />
+                    <line x1="9" y1="18" x2="15" y2="18" stroke="url(#logo-grad)" stroke-width="2.5" stroke-linecap="round"/>
+                    <circle cx="12" cy="18" r="1" fill="url(#logo-grad)"/>
+                    <defs>
+                        <linearGradient id="logo-grad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#6366f1" />
+                            <stop offset="1" stop-color="#06b6d4" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>SmartTracker</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-tab="dashboard">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-tab="predictor">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+                    <span>ML Predictor</span>
+                </button>
+                <button class="nav-item" data-tab="focus">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span>Focus Mode</span>
+                </button>
+                <button class="nav-item" data-tab="challenges">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                    <span>Detox Goals</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="backend-status-container">
+                    <div class="status-dot offline" id="backend-status-dot"></div>
+                    <span id="backend-status-text">Inference: Local Fallback</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="app-header">
+                <div class="header-title">
+                    <h1 id="page-title">Digital Wellness Dashboard</h1>
+                    <p id="page-subtitle">Track, analyze, and build a healthier relationship with your phone.</p>
+                </div>
+                <div class="header-actions">
+                    <div class="wellness-badge" id="overall-wellness-badge">
+                        <span class="wellness-label">Wellness Score</span>
+                        <span class="wellness-value" id="wellness-score-value">85</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- TAB 1: DASHBOARD -->
+            <section class="tab-panel active" id="panel-dashboard">
+                <div class="metrics-grid">
+                    <div class="glass-card metric-card">
+                        <div class="metric-icon" style="background: rgba(99, 102, 241, 0.15); color: #6366f1;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        </div>
+                        <div class="metric-details">
+                            <h3>Daily Screen Time</h3>
+                            <div class="metric-value"><span id="dash-screen-time">4.2</span><span class="unit">hrs</span></div>
+                            <p class="metric-trend green" id="dash-screen-trend">↑ 12% lower than average</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card metric-card">
+                        <div class="metric-icon" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        </div>
+                        <div class="metric-details">
+                            <h3>Unlocks / Pickups</h3>
+                            <div class="metric-value"><span id="dash-pickups">48</span><span class="unit">times</span></div>
+                            <p class="metric-trend yellow" id="dash-pickups-trend">→ Balanced pickup pattern</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card metric-card">
+                        <div class="metric-icon" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        </div>
+                        <div class="metric-details">
+                            <h3>Social Media Ratio</h3>
+                            <div class="metric-value"><span id="dash-social-ratio">42</span><span class="unit">%</span></div>
+                            <p class="metric-trend red" id="dash-social-trend">↓ 5% higher than goal</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card metric-card">
+                        <div class="metric-icon" style="background: rgba(234, 179, 8, 0.15); color: #eab308;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                        </div>
+                        <div class="metric-details">
+                            <h3>Late-Night Screen Use</h3>
+                            <div class="metric-value"><span id="dash-night-time">0.8</span><span class="unit">hrs</span></div>
+                            <p class="metric-trend green" id="dash-night-trend">↑ Safe sleep threshold</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="dashboard-grid">
+                    <div class="glass-card chart-container-large">
+                        <div class="chart-header">
+                            <h3>Weekly Screentime History</h3>
+                            <span class="chart-subtitle">Daily total screen hours</span>
+                        </div>
+                        <div class="chart-wrapper" id="weekly-trend-chart"></div>
+                    </div>
+
+                    <div class="glass-card chart-container-small">
+                        <div class="chart-header">
+                            <h3>Category Breakdown</h3>
+                            <span class="chart-subtitle">Share of screen activities</span>
+                        </div>
+                        <div class="chart-wrapper" id="category-donut-chart"></div>
+                        <!-- Legend rendered by charts.js below the SVG -->
+                        <div class="donut-legend" id="donut-legend"></div>
+                    </div>
+
+                    <div class="glass-card chart-container-medium">
+                        <div class="chart-header">
+                            <h3>Late Night Use vs Sleep Quality</h3>
+                            <span class="chart-subtitle">Sleep disruption pattern</span>
+                        </div>
+                        <div class="chart-wrapper" id="sleep-correlation-chart"></div>
+                        <div class="chart-legend-row">
+                            <span class="legend-dot" style="background:#f59e0b;"></span><span>Night Usage (hrs)</span>
+                            <span class="legend-dot" style="background:#06b6d4; margin-left:12px;"></span><span>Sleep Quality (%)</span>
+                        </div>
+                    </div>
+
+                    <!-- Addiction Insight banner -->
+                    <div class="glass-card insight-banner">
+                        <div class="insight-shield">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        </div>
+                        <div class="insight-content">
+                            <h3>AI Health Diagnosis</h3>
+                            <p id="dash-ai-insight">Calculating wellness statistics...</p>
+                        </div>
+                        <button class="glow-button" id="trigger-prediction-view">Optimize Now</button>
+                    </div>
+                </div>
+
+                <!-- Top Apps Section -->
+                <div class="glass-card top-apps-card">
+                    <div class="chart-header">
+                        <h3>Top Apps & Websites</h3>
+                        <span class="chart-subtitle">Most used today</span>
+                    </div>
+                    <div id="top-apps-list" class="top-apps-list"></div>
+                </div>
+            </section>
+
+            <!-- TAB 2: ML PREDICTOR -->
+            <section class="tab-panel" id="panel-predictor">
+                <div class="predictor-grid">
+                    <div class="glass-card form-container">
+                        <h2>Predict Smartphone Addiction</h2>
+                        <p class="section-desc">Adjust the variables below to evaluate smartphone addiction risk using our Random Forest classifier model.</p>
+                        
+                        <div class="wellness-form">
+                            <div class="form-group">
+                                <div class="slider-header">
+                                    <label for="daily_usage_hours">Daily Usage Hours</label>
+                                    <span class="slider-value" id="val-daily_usage_hours">4.5h</span>
+                                </div>
+                                <input type="range" id="daily_usage_hours" min="0" max="18" step="0.5" value="4.5">
+                                <div class="slider-labels"><span>0h</span><span>9h</span><span>18h</span></div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="slider-header">
+                                    <label for="night_usage_hours">Night Usage Hours (10PM – 6AM)</label>
+                                    <span class="slider-value" id="val-night_usage_hours">1.0h</span>
+                                </div>
+                                <input type="range" id="night_usage_hours" min="0" max="8" step="0.25" value="1.0">
+                                <div class="slider-labels"><span>0h</span><span>4h</span><span>8h</span></div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="slider-header">
+                                    <label for="app_switching_frequency">App Switching Frequency</label>
+                                    <span class="slider-value" id="val-app_switching_frequency">60 times</span>
+                                </div>
+                                <input type="range" id="app_switching_frequency" min="0" max="300" step="5" value="60">
+                                <div class="slider-labels"><span>0</span><span>150</span><span>300</span></div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="slider-header">
+                                    <label for="social_media_percentage">Social Media Percentage</label>
+                                    <span class="slider-value" id="val-social_media_percentage">40%</span>
+                                </div>
+                                <input type="range" id="social_media_percentage" min="0" max="100" step="5" value="40">
+                                <div class="slider-labels"><span>0%</span><span>50%</span><span>100%</span></div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="slider-header">
+                                    <label for="total_sessions">Total Pickups (Sessions)</label>
+                                    <span class="slider-value" id="val-total_sessions">50 unlocks</span>
+                                </div>
+                                <input type="range" id="total_sessions" min="0" max="250" step="5" value="50">
+                                <div class="slider-labels"><span>0</span><span>125</span><span>250</span></div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="slider-header">
+                                    <label for="avg_session_duration_mins">Avg Session Duration</label>
+                                    <span class="slider-value" id="val-avg_session_duration_mins">6.0m</span>
+                                </div>
+                                <input type="range" id="avg_session_duration_mins" min="0.5" max="45" step="0.5" value="6.0">
+                                <div class="slider-labels"><span>30s</span><span>22.5m</span><span>45m</span></div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" class="glow-button primary" id="btn-predict">
+                                    <span>Run ML Prediction</span>
+                                    <div class="loading-ring" id="predict-loading" style="display: none;"></div>
+                                </button>
+                                <button type="button" class="secondary-button" id="btn-reset-form">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Panel -->
+                    <div class="glass-card result-container empty" id="prediction-result-panel">
+                        <div class="empty-state-message">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            <h3>Awaiting Analysis</h3>
+                            <p>Configure screen habits on the left and click "Run ML Prediction" to fetch results.</p>
+                        </div>
+                        
+                        <div class="result-active-content" style="display: none;">
+                            <div class="result-header">
+                                <h3>Classification Outcome</h3>
+                                <div class="risk-badge" id="result-risk-badge">Low Risk</div>
+                            </div>
+
+                            <div class="gauge-center">
+                                <div class="circle-gauge">
+                                    <svg viewBox="0 0 100 100" class="gauge-svg">
+                                        <circle cx="50" cy="50" r="40" class="gauge-bg"></circle>
+                                        <circle cx="50" cy="50" r="40" class="gauge-fill" id="confidence-gauge-circle"></circle>
+                                    </svg>
+                                    <div class="gauge-label">
+                                        <span class="percent" id="prediction-confidence">92%</span>
+                                        <span class="caption">Confidence</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="probability-bars">
+                                <h4>Distribution Probability</h4>
+                                <div class="prob-row">
+                                    <div class="prob-info"><span>Low Risk</span><span id="prob-val-low">10%</span></div>
+                                    <div class="bar-outer"><div class="bar-inner low" id="prob-bar-low" style="width: 10%;"></div></div>
+                                </div>
+                                <div class="prob-row">
+                                    <div class="prob-info"><span>Medium Risk</span><span id="prob-val-med">65%</span></div>
+                                    <div class="bar-outer"><div class="bar-inner med" id="prob-bar-med" style="width: 65%;"></div></div>
+                                </div>
+                                <div class="prob-row">
+                                    <div class="prob-info"><span>High Risk</span><span id="prob-val-high">25%</span></div>
+                                    <div class="bar-outer"><div class="bar-inner high" id="prob-bar-high" style="width: 25%;"></div></div>
+                                </div>
+                            </div>
+
+                            <div class="result-insight-box">
+                                <h5>Diagnostic Insight</h5>
+                                <p id="result-insight-text">Loading insights...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: FOCUS MODE -->
+            <section class="tab-panel" id="panel-focus">
+                <div class="focus-grid">
+                    <div class="glass-card focus-timer-card">
+                        <div class="breath-guide-container">
+                            <div class="breath-ring" id="breath-circle"></div>
+                            <span class="breath-instruction" id="breath-label">Prepare to Focus</span>
+                        </div>
+
+                        <div class="timer-display-container">
+                            <svg class="timer-svg" viewBox="0 0 200 200">
+                                <circle class="timer-track" cx="100" cy="100" r="90"></circle>
+                                <circle class="timer-fill" id="timer-progress-ring" cx="100" cy="100" r="90"></circle>
+                            </svg>
+                            <div class="timer-text" id="timer-countdown">25:00</div>
+                        </div>
+
+                        <div class="timer-controls">
+                            <button class="secondary-button" id="btn-timer-duration" data-duration="1500">25 Min</button>
+                            <button class="glow-button primary" id="btn-timer-toggle">Start Focus</button>
+                            <button class="secondary-button" id="btn-timer-reset">Reset</button>
+                        </div>
+                    </div>
+
+                    <div class="glass-card soundscape-card">
+                        <h2>Ambient Soundscapes</h2>
+                        <p class="section-desc">Calm your mind. Select a synthesized background sound to block distractions. Generated locally with Web Audio API.</p>
+                        
+                        <div class="sound-grid">
+                            <button class="sound-option active" data-sound="none">
+                                <div class="sound-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M23 9l-6 6M17 9l6 6"></path></svg>
+                                </div>
+                                <span class="sound-name">Silence</span>
+                            </button>
+                            <button class="sound-option" data-sound="rain">
+                                <div class="sound-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 17.58A6 6 0 1 1 12 8c1.72 0 3.3.49 4.62 1.34A4.98 4.98 0 0 1 20 12.58"></path><path d="M12 14v8M8 14v4M16 14v6"></path></svg>
+                                </div>
+                                <span class="sound-name">Warm Rain</span>
+                            </button>
+                            <button class="sound-option" data-sound="forest">
+                                <div class="sound-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 22h20L12 2z"></path><path d="M12 9l-5 9h10l-5-9z"></path></svg>
+                                </div>
+                                <span class="sound-name">Forest Ambient</span>
+                            </button>
+                            <button class="sound-option" data-sound="white">
+                                <div class="sound-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 10h20M2 14h20M6 6h12M10 18h4"></path></svg>
+                                </div>
+                                <span class="sound-name">White Noise</span>
+                            </button>
+                        </div>
+
+                        <div class="volume-slider-group">
+                            <div class="slider-header">
+                                <label for="volume-slider">Volume Control</label>
+                                <span class="slider-value" id="val-volume">50%</span>
+                            </div>
+                            <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.5" disabled>
+                        </div>
+                        
+                        <div class="breathing-toggle">
+                            <label class="switch-container">
+                                <input type="checkbox" id="breathing-guide-toggle">
+                                <span class="switch-slider"></span>
+                            </label>
+                            <span>Enable Interactive Breathing Guide</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: DETOX CHALLENGES -->
+            <section class="tab-panel" id="panel-challenges">
+                <div class="challenges-layout">
+                    <div class="glass-card achievements-panel">
+                        <h2>Digital Badges</h2>
+                        <p class="section-desc">Unlock these achievements by maintaining healthy digital boundaries and checking off challenges.</p>
+                        
+                        <div class="badges-grid" id="badges-container">
+                            <div class="badge-item locked" id="badge-first-step" data-title="First Step" data-desc="Complete your first digital detox task.">
+                                <div class="badge-icon">👣</div>
+                                <div class="badge-name">First Step</div>
+                            </div>
+                            <div class="badge-item locked" id="badge-focus-master" data-title="Focus Master" data-desc="Complete a full 25-minute Focus Session.">
+                                <div class="badge-icon">⏳</div>
+                                <div class="badge-name">Focus Master</div>
+                            </div>
+                            <div class="badge-item locked" id="badge-offline-hero" data-title="Offline Hero" data-desc="Check off all daily detox tasks in a single day.">
+                                <div class="badge-icon">🛡️</div>
+                                <div class="badge-name">Offline Hero</div>
+                            </div>
+                            <div class="badge-item locked" id="badge-night-owl" data-title="Sleep Guardian" data-desc="Keep nighttime screen usage under 15 minutes.">
+                                <div class="badge-icon">🌙</div>
+                                <div class="badge-name">Sleep Guardian</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card tasks-panel">
+                        <h2>Detox Challenges</h2>
+                        <p class="section-desc">Commit to these targets. Check off tasks as you complete them throughout the day.</p>
+                        
+                        <div class="task-sections">
+                            <div class="task-category">
+                                <h3>Daily Habits</h3>
+                                <ul class="challenge-list">
+                                    <li>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" class="detox-task" data-id="sleep-1hr">
+                                            <span class="custom-checkbox"></span>
+                                            <span class="task-text">No screens 1 hour before going to bed.</span>
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" class="detox-task" data-id="morning-30">
+                                            <span class="custom-checkbox"></span>
+                                            <span class="task-text">Wait 30 minutes after waking up before checking your phone.</span>
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" class="detox-task" data-id="limit-social">
+                                            <span class="custom-checkbox"></span>
+                                            <span class="task-text">Keep social media percentage below 30%.</span>
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" class="detox-task" data-id="pickups-40">
+                                            <span class="custom-checkbox"></span>
+                                            <span class="task-text">Limit pickups/unlocks to under 40 times.</span>
+                                        </label>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="task-category">
+                                <h3>Weekly Experiments</h3>
+                                <ul class="challenge-list">
+                                    <li>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" class="detox-task" data-id="gray-day">
+                                            <span class="custom-checkbox"></span>
+                                            <span class="task-text">Set your phone screen to grayscale mode for an entire day.</span>
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" class="detox-task" data-id="no-notifications">
+                                            <span class="custom-checkbox"></span>
+                                            <span class="task-text">Disable all non-essential notification badges and sounds.</span>
+                                        </label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="capacitor.js" onerror="this.remove()"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="cloud-sync.js"></script>
+    <script src="native-bridge.js"></script>
+    <script src="audio.js"></script>
+    <script src="charts.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

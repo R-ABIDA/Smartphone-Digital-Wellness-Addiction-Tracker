@@ -1,0 +1,12 @@
+{
+  "appId": "com.smarttracker.app",
+  "appName": "SmartTracker",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": true
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

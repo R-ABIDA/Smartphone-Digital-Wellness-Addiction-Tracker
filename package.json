@@ -1,0 +1,18 @@
+{
+  "name": "smarttracker-app",
+  "version": "1.0.0",
+  "description": "SmartTracker — Smartphone Addiction Dashboard, packaged as a native Android app via Capacitor.",
+  "scripts": {
+    "build-plugin": "cd plugins/capacitor-usage-stats && npm install && npm run build",
+    "sync": "npx cap sync android",
+    "android": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "capacitor-usage-stats": "file:./plugins/capacitor-usage-stats"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0"
+  }
+}

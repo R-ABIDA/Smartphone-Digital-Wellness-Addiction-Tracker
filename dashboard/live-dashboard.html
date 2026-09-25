@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SmartTracker — Live Cloud Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../www/supabase-config.js"></script>
+<style>
+  :root {
+    --bg: #0b0e16;
+    --card: #11151f;
+    --border: rgba(255,255,255,0.08);
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #6366f1;
+    --accent2: #06b6d4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    padding: 2rem;
+  }
+  h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.8rem;
+    margin: 0 0 0.25rem;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .subtitle { color: var(--muted); margin-bottom: 1.5rem; font-size: 0.95rem; }
+  .status-row {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.85rem; color: var(--muted); margin-bottom: 2rem; flex-wrap: wrap;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+  .dot.live { background: #10b981; box-shadow: 0 0 8px #10b981; }
+  .device-count-badge {
+    background: rgba(99,102,241,0.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 999px; padding: 0.2rem 0.75rem; font-size: 0.8rem; font-weight: 600;
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem; }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+  }
+  .card h3 { margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--muted); font-weight: 500; }
+  .card .value { font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 700; }
+  .card .unit { font-size: 0.9rem; color: var(--muted); margin-left: 0.25rem; }
+  .panel { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .panel h2 { margin: 0 0 0.25rem; font-size: 1.1rem; font-family: 'Outfit', sans-serif; }
+  .panel .panel-subtitle { color: var(--muted); font-size: 0.85rem; margin: 0 0 1rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th { text-align: left; color: var(--muted); font-weight: 500; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); }
+  tr.rank-1 td:first-child, tr.rank-2 td:first-child, tr.rank-3 td:first-child { font-weight: 600; }
+  .rank-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.4rem; height: 1.4rem; border-radius: 50%; font-size: 0.75rem; font-weight: 700;
+    background: rgba(255,255,255,0.06); color: var(--muted); margin-right: 0.5rem;
+  }
+  tr.rank-1 .rank-badge { background: rgba(245,158,11,0.2); color: #f59e0b; }
+  tr.rank-2 .rank-badge { background: rgba(148,163,184,0.2); color: #cbd5e1; }
+  tr.rank-3 .rank-badge { background: rgba(217,119,6,0.2); color: #d97706; }
+  .bar-cell { display: flex; align-items: center; gap: 0.6rem; min-width: 140px; }
+  .bar-track { flex: 1; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .pill { padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+  .pill.Social { background: rgba(244,63,94,0.15); color: #f43f5e; }
+  .pill.Work { background: rgba(16,185,129,0.15); color: #10b981; }
+  .pill.Entertainment { background: rgba(245,158,11,0.15); color: #f59e0b; }
+  .pill.Gaming { background: rgba(99,102,241,0.15); color: #6366f1; }
+  .pill.Other { background: rgba(148,163,184,0.15); color: #94a3b8; }
+  .device-pill {
+    background: rgba(6,182,212,0.12); color: #67e8f9; border-radius: 999px;
+    padding: 0.15rem 0.6rem; font-size: 0.75rem; font-weight: 600;
+  }
+  .empty-state { text-align: center; color: var(--muted); padding: 3rem 1rem; }
+  .config-warning {
+    background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+    color: #fca5a5; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+  <h1>SmartTracker — Live Cloud Dashboard</h1>
+  <p class="subtitle">Real-time anonymized usage data synced from every connected device.</p>
+
+  <div id="config-warning" class="config-warning" style="display:none;">
+    Supabase isn't configured yet. Edit <code>www/supabase-config.js</code> with your project URL and anon key, then reload this page.
+  </div>
+
+  <div class="status-row">
+    <span class="dot" id="status-dot"></span>
+    <span id="status-text">Connecting…</span>
+    <span class="device-count-badge" id="device-count-badge">0 devices</span>
+  </div>
+
+  <!-- Combined totals across every device, today -->
+  <div class="grid" id="metrics-grid">
+    <div class="card"><h3>Combined Screen Time</h3><div class="value">—<span class="unit">hrs</span></div></div>
+    <div class="card"><h3>Avg Screen Time / Device</h3><div class="value">—<span class="unit">hrs</span></div></div>
+    <div class="card"><h3>Total Pickups</h3><div class="value">—<span class="unit">times</span></div></div>
+    <div class="card"><h3>Avg Social Media %</h3><div class="value">—<span class="unit">%</span></div></div>
+    <div class="card"><h3>Avg Wellness Score</h3><div class="value">—</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Most Used Apps &amp; Websites — Today</h2>
+    <p class="panel-subtitle">Combined usage across all connected devices, ranked by total time.</p>
+    <div id="top-apps-wrap"><div class="empty-state">No data synced yet. Open the app on a phone to start syncing.</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>All Devices — Today</h2>
+    <p class="panel-subtitle">Every device that has synced data today.</p>
+    <div id="devices-table-wrap"><div class="empty-state">No devices yet.</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Last 7 Days — Combined</h2>
+    <p class="panel-subtitle">Totals and averages across all devices, per day.</p>
+    <div id="history-table-wrap"><div class="empty-state">No history yet.</div></div>
+  </div>
+
+  <script>
+    const statusDot = document.getElementById('status-dot');
+    const statusText = document.getElementById('status-text');
+    const deviceCountBadge = document.getElementById('device-count-badge');
+    const metricsGrid = document.getElementById('metrics-grid');
+    const topAppsWrap = document.getElementById('top-apps-wrap');
+    const devicesWrap = document.getElementById('devices-table-wrap');
+    const historyWrap = document.getElementById('history-table-wrap');
+
+    function isConfigured() {
+      return window.SUPABASE_CONFIG &&
+        window.SUPABASE_CONFIG.url && !window.SUPABASE_CONFIG.url.includes('YOUR-PROJECT-REF') &&
+        window.SUPABASE_CONFIG.anonKey && !window.SUPABASE_CONFIG.anonKey.includes('YOUR-ANON');
+    }
+
+    if (!isConfigured()) {
+      document.getElementById('config-warning').style.display = 'block';
+      statusText.textContent = 'Not configured';
+    }
+
+    const sb = isConfigured()
+      ? window.supabase.createClient(window.SUPABASE_CONFIG.url, window.SUPABASE_CONFIG.anonKey)
+      : null;
+
+    // IMPORTANT: built from local date fields, NOT Date.toISOString().slice(0,10).
+    // toISOString() returns the UTC date — for timezones ahead of UTC (e.g. IST,
+    // UTC+5:30) that rolls over to "yesterday" for every local time between
+    // midnight and ~5:30am, which is exactly when people tend to check their
+    // screen time after waking up. Mirrors the same fix in www/cloud-sync.js so
+    // the dashboard's "today" always matches the date the phone synced under.
+    function localDateStr(d) {
+      d = d || new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    const todayStr = localDateStr();
+
+    function setMetric(index, value, suffix) {
+      const card = metricsGrid.children[index];
+      card.querySelector('.value').innerHTML = `${value}<span class="unit">${suffix}</span>`;
+    }
+
+    function shortId(id) {
+      return `${id.slice(0, 8)}…`;
+    }
+
+    // ---- All devices' summary rows for today --------------------------------
+    async function fetchTodaySummaries() {
+      if (!sb) return [];
+      const { data, error } = await sb
+        .from('device_daily_summary')
+        .select('*')
+        .eq('usage_date', todayStr);
+      if (error) { console.error(error); return []; }
+      return data || [];
+    }
+
+    // ---- All devices' per-app rows for today, aggregated --------------------
+    async function fetchTodayApps() {
+      if (!sb) return [];
+      const { data, error } = await sb
+        .from('device_usage_daily')
+        .select('*')
+        .eq('usage_date', todayStr);
+      if (error) { console.error(error); return []; }
+      return data || [];
+    }
+
+    function renderCombinedMetrics(summaries) {
+      if (!summaries.length) {
+        [0,1,2,3,4].forEach(i => setMetric(i, '—', ''));
+        return;
+      }
+      const n = summaries.length;
+      const totalScreenMin = summaries.reduce((s, d) => s + (d.total_screen_minutes || 0), 0);
+      const totalPickups = summaries.reduce((s, d) => s + (d.pickups || 0), 0);
+      const avgSocial = summaries.reduce((s, d) => s + (d.social_media_percentage || 0), 0) / n;
+      const wellnessVals = summaries.map(d => d.wellness_score).filter(v => v != null);
+      const avgWellness = wellnessVals.length ? Math.round(wellnessVals.reduce((a,b) => a+b, 0) / wellnessVals.length) : '—';
+
+      setMetric(0, (totalScreenMin / 60).toFixed(1), 'hrs');
+      setMetric(1, (totalScreenMin / 60 / n).toFixed(1), 'hrs');
+      setMetric(2, totalPickups, 'times');
+      setMetric(3, Math.round(avgSocial), '%');
+      setMetric(4, avgWellness, '');
+    }
+
+    function renderDevicesTable(summaries) {
+      if (!summaries.length) {
+        devicesWrap.innerHTML = '<div class="empty-state">No devices have synced data today yet.</div>';
+        return;
+      }
+      const rows = [...summaries].sort((a, b) => (b.total_screen_minutes || 0) - (a.total_screen_minutes || 0));
+      devicesWrap.innerHTML = `
+        <table>
+          <thead><tr><th>Device</th><th>Screen Time</th><th>Pickups</th><th>Social %</th><th>Night Usage</th><th>Wellness</th></tr></thead>
+          <tbody>
+            ${rows.map(d => `
+              <tr>
+                <td><span class="device-pill">${shortId(d.device_id)}</span></td>
+                <td>${(d.total_screen_minutes / 60).toFixed(1)}h</td>
+                <td>${d.pickups}</td>
+                <td>${Math.round(d.social_media_percentage)}%</td>
+                <td>${(d.night_usage_minutes / 60).toFixed(1)}h</td>
+                <td>${d.wellness_score ?? '—'}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    function renderTopApps(appRows) {
+      if (!appRows.length) {
+        topAppsWrap.innerHTML = '<div class="empty-state">No per-app data synced today (only available on Android with Usage Access granted).</div>';
+        return;
+      }
+
+      // Aggregate by package_name across every device.
+      const byPkg = new Map();
+      for (const row of appRows) {
+        const key = row.package_name;
+        const entry = byPkg.get(key) || {
+          appName: row.app_name,
+          category: row.category,
+          totalMinutes: 0,
+          devices: new Set()
+        };
+        entry.totalMinutes += row.total_minutes || 0;
+        entry.devices.add(row.device_id);
+        byPkg.set(key, entry);
+      }
+
+      const list = [...byPkg.values()].sort((a, b) => b.totalMinutes - a.totalMinutes);
+      const maxMinutes = list[0].totalMinutes || 1;
+      const deviceTotal = new Set(appRows.map(r => r.device_id)).size;
+
+      topAppsWrap.innerHTML = `
+        <table>
+          <thead><tr><th>App / Site</th><th>Category</th><th>Combined Time</th><th>Avg / Device</th><th>Used By</th></tr></thead>
+          <tbody>
+            ${list.map((a, i) => `
+              <tr class="rank-${i + 1}">
+                <td><span class="rank-badge">${i + 1}</span>${a.appName}</td>
+                <td><span class="pill ${a.category}">${a.category}</span></td>
+                <td class="bar-cell">
+                  <span>${Math.round(a.totalMinutes)}m</span>
+                  <span class="bar-track"><span class="bar-fill" style="width:${Math.round((a.totalMinutes / maxMinutes) * 100)}%"></span></span>
+                </td>
+                <td>${Math.round(a.totalMinutes / a.devices.size)}m</td>
+                <td>${a.devices.size}/${deviceTotal} device${deviceTotal === 1 ? '' : 's'}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    // ---- Last 7 days, combined across all devices ---------------------------
+    async function fetchHistory() {
+      if (!sb) return [];
+      const since = new Date();
+      since.setDate(since.getDate() - 6);
+      const { data, error } = await sb
+        .from('device_daily_summary')
+        .select('*')
+        .gte('usage_date', localDateStr(since))
+        .order('usage_date', { ascending: false });
+      if (error) { console.error(error); return []; }
+      return data || [];
+    }
+
+    function renderHistory(rows) {
+      if (!rows.length) {
+        historyWrap.innerHTML = '<div class="empty-state">No history yet.</div>';
+        return;
+      }
+      const byDate = new Map();
+      for (const r of rows) {
+        const entry = byDate.get(r.usage_date) || { screenMin: 0, pickups: 0, social: [], wellness: [], devices: new Set() };
+        entry.screenMin += r.total_screen_minutes || 0;
+        entry.pickups += r.pickups || 0;
+        entry.social.push(r.social_media_percentage || 0);
+        if (r.wellness_score != null) entry.wellness.push(r.wellness_score);
+        entry.devices.add(r.device_id);
+        byDate.set(r.usage_date, entry);
+      }
+      const dates = [...byDate.keys()].sort().reverse();
+      historyWrap.innerHTML = `
+        <table>
+          <thead><tr><th>Date</th><th>Combined Screen Time</th><th>Total Pickups</th><th>Avg Social %</th><th>Avg Wellness</th><th>Devices</th></tr></thead>
+          <tbody>
+            ${dates.map(date => {
+              const e = byDate.get(date);
+              const avgSocial = Math.round(e.social.reduce((a,b) => a+b, 0) / e.social.length);
+              const avgWellness = e.wellness.length ? Math.round(e.wellness.reduce((a,b) => a+b, 0) / e.wellness.length) : '—';
+              return `
+                <tr>
+                  <td>${date}</td>
+                  <td>${(e.screenMin / 60).toFixed(1)}h</td>
+                  <td>${e.pickups}</td>
+                  <td>${avgSocial}%</td>
+                  <td>${avgWellness}</td>
+                  <td>${e.devices.size}</td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    async function refreshAll() {
+      const [summaries, appRows, history] = await Promise.all([
+        fetchTodaySummaries(),
+        fetchTodayApps(),
+        fetchHistory()
+      ]);
+
+      deviceCountBadge.textContent = `${summaries.length} device${summaries.length === 1 ? '' : 's'} today`;
+      renderCombinedMetrics(summaries);
+      renderDevicesTable(summaries);
+      renderTopApps(appRows);
+      renderHistory(history);
+    }
+
+    function setLive(isLive) {
+      statusDot.classList.toggle('live', isLive);
+      statusText.textContent = isLive ? 'Live — auto-updating' : 'Connected, waiting for data';
+    }
+
+    async function init() {
+      if (!sb) return;
+      await refreshAll();
+      setLive(true);
+
+      // Realtime: auto-refresh whenever any phone syncs new data.
+      sb.channel('summary-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'device_daily_summary' }, refreshAll)
+        .subscribe();
+
+      sb.channel('usage-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'device_usage_daily' }, refreshAll)
+        .subscribe();
+
+      // Fallback polling every 15s in case realtime isn't enabled on the project.
+      setInterval(refreshAll, 15000);
+    }
+
+    init();
+  </script>
+</body>
+</html>
